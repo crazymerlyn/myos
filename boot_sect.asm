@@ -3,28 +3,53 @@
 ; A simple boot sector program that prints a message to screen
 ; 
 
-mov ah, 0x0e    ; Scrolling teletype routine
+mov dx, 0x1f46
+call print_hex
 
-mov bp, 0x8000
-mov sp, bp
+jmp $
 
-push 'A'
-push 'B'
-push 'C'
 
-pop bx
-mov al, bl
-int 0x10
+print_hex:
+    pusha
+    mov cx, 3
 
-pop bx
-mov al, bl
-int 0x10
+    hex_loop_start:
+    cmp cx, 0
+    jl hex_loop_end
+    mov ax, dx
 
-mov al, [0x7ffe]
-int 0x10
+    shr ax, cl
+    shr ax, cl
+    shr ax, cl
+    shr ax, cl
+    and ax, 0xf
+    
+    cmp ax, 9
+    jg hexadecimal
+    add ax, '0'
+    jmp hex_cond_end
+    hexadecimal:
+    add ax, 'a'-10
+    hex_cond_end:
+    mov bx, 5
+    sub bx, cx
+    mov [HEX_OUT+bx], ax
+    
+    sub cx, 1
+    jmp hex_loop_start
 
-jmp $ ; Jump to the current address, i.e., forever
+    hex_loop_end:
 
+    mov bx, HEX_OUT
+    call print_string
+    popa
+    ret
+
+
+%include "print_string.asm"
+
+HEX_OUT:
+    db "0x0000", 0
 
 ;
 ; Padding and magic number
