@@ -13,10 +13,10 @@ call switch_to_pm
 jmp $
 
 
-%include "print_string.nasm"
-%include "gdt.nasm"
-%include "print_string_pm.nasm"
-%include "switch_to_pm.nasm"
+%include "print/print_string.nasm"
+%include "pm/gdt.nasm"
+%include "pm/print_string_pm.nasm"
+%include "pm/switch_to_pm.nasm"
 
 [bits 32]
 ; This is where we arrive after switching to and initialising protected mode
