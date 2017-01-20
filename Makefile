@@ -8,13 +8,13 @@ all: os.bin
 
 
 boot/boot_sect.bin: $(BOOTLOAD_SOURCES)
-	nasm boot/boot_sect.nasm -f bin -I 'boot/' -o boot/boot_sect.bin
+	nasm boot/boot_sect.nasm -f bin -I 'boot/' -o $@
 
 kernel.bin: kernel/kernel_entry.o $(OBJ)
 	ld -melf_i386 -o $@ -Ttext 0x1000 $^ --oformat binary
 
 os.bin: boot/boot_sect.bin kernel.bin
-	cat $^ > os.bin
+	cat $^ > $@
 
 run: all
 	qemu-system-i386 os.bin
