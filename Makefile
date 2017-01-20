@@ -1,9 +1,9 @@
-
+SOURCES := $(wildcard *.nasm)
 
 all: boot_sect.bin
 
 
-boot_sect.bin: boot_sect.nasm print_hex.nasm print_string.nasm disk_load.nasm
+boot_sect.bin: $(SOURCES)
 	nasm boot_sect.nasm -f bin -o boot_sect.bin
 
 
