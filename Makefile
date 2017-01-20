@@ -3,8 +3,8 @@
 all: boot_sect.bin
 
 
-boot_sect.bin: boot_sect.asm print_hex.asm print_string.asm disk_load.asm
-	nasm boot_sect.asm -f bin -o boot_sect.bin
+boot_sect.bin: boot_sect.nasm print_hex.nasm print_string.nasm disk_load.nasm
+	nasm boot_sect.nasm -f bin -o boot_sect.bin
 
 
 

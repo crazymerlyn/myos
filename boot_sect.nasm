@@ -24,9 +24,9 @@ call print_hex
 jmp $
 
 
-%include "print_string.asm"
-%include "print_hex.asm"
-%include "disk_load.asm"
+%include "print_string.nasm"
+%include "print_hex.nasm"
+%include "disk_load.nasm"
 
 
 ; Global Variables
