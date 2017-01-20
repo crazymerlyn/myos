@@ -2,44 +2,40 @@
 ; 
 ; A simple boot sector program that prints a message to screen
 ; 
-mov [BOOT_DRIVE], dl       ; BIOS stores our drive in DL
-                            ; It's best to remember this for later
-
-
-mov bp, 0x8000              ; Set the stack safely out of the way
+mov bp, 0x9000              ; Set the stack safely out of the way
 mov sp, bp
 
+mov bx, REAL_MODE_MSG
+call print_string
 
-mov bx, 0x9000              ; Load 5 sectors at 0x0000(ES):0x9000(BX)
-mov dh, 2                   ; from the disk
-mov dl, [BOOT_DRIVE]
-call disk_load
-
-mov dx, [0x9000]
-call print_hex
-
-mov dx, [0x9000 + 512]
-call print_hex
+call switch_to_pm
 
 jmp $
 
 
 %include "print_string.nasm"
-%include "print_hex.nasm"
-%include "disk_load.nasm"
+%include "gdt.nasm"
+%include "print_string_pm.nasm"
+%include "switch_to_pm.nasm"
+
+[bits 32]
+; This is where we arrive after switching to and initialising protected mode
+BEGIN_PM:
+    
+    mov ebx, PROT_MODE_MSG
+    call print_string_pm        ; Use our 32-bit print routine
+
+    jmp $                       ; Hang
 
 
 ; Global Variables
-BOOT_DRIVE: db 0
+REAL_MODE_MSG db "Started in 16-bit Real Mode", 0
+PROT_MODE_MSG db "Successfully landed in 32-bit Protected Mode", 0
+
 
 ;
 ; Padding and magic number
 ;
-
 times 510 - ($ - $$) db 0 ; Pad zeroes til 510 bytes
 dw 0xaa55
-
-
-times 256 dw 0xdada
-times 256 dw 0xface
 
