@@ -1,25 +1,35 @@
 BOOTLOAD_SOURCES := $(shell find . -iname "*.nasm")
-KERNEL_SOURCES := kernel.c
+C_SOURCES := $(wildcard kernel/*.c drivers/*.c)
+HEADERS := $(wildcard kernel/*.h drivers/*.h)
+OBJ := $(C_SOURCES:.c=.o)
 
-all: boot_sect.bin
+# Default build target
+all: os.bin
 
 
-boot_sect.bin: $(BOOTLOAD_SOURCES)
-	nasm boot_sect.nasm -f bin -o boot_sect.bin
+boot/boot_sect.bin: $(BOOTLOAD_SOURCES)
+	nasm boot/boot_sect.nasm -f bin -I 'boot/' -o boot/boot_sect.bin
 
-kernel.bin: $(KERNEL_SOURCES)
-	gcc -m32 -ffreestanding -c kernel.c -o kernel.o
-	ld -melf_i386 -o kernel.bin -Ttext 0x1000 kernel.o --oformat binary
+kernel.bin: kernel/kernel_entry.o $(OBJ)
+	ld -melf_i386 -o $@ -Ttext 0x1000 $^ --oformat binary
 
-os.bin: boot_sect.bin kernel.bin
-	cat boot_sect.bin kernel.bin > os.bin
+os.bin: boot/boot_sect.bin kernel.bin
+	cat $^ > os.bin
 
-run: os.bin
+run: all
 	qemu-system-i386 os.bin
 
+%.o : %.c $(HEADERS)
+	i686-elf-gcc -ffreestanding -c $< -o $@
+
+%.o : %.nasm
+	nasm $< -f elf -o $@
+
+%.bin : %.nasm
+	nasm $< -f bin -o $@
 
 clean:
-	@rm -rf *.bin *.o
+	@rm -rf *.bin *.o */*.bin */*.o
 
 .PHONY: all run clean
 
