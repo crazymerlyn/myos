@@ -1,4 +1,4 @@
-SOURCES := $(wildcard *.nasm)
+SOURCES := $(shell find . -iname "*.nasm")
 
 all: boot_sect.bin
 
